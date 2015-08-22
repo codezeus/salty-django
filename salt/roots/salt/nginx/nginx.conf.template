@@ -1,0 +1,43 @@
+{% set hostname = salt['pillar.get']('system:hostname') %}
+{% set app_name = salt['pillar.get']('app:vars:app_name') %}
+{% set app_path = salt['pillar.get']('app:paths:src_dir') %}
+{% set core_path = app_path ~ '/' ~ app_name %}
+{% set static_path = core_path ~ '/static/' %}
+{% set media_path = core_path ~ '/media/' %}
+
+server {
+    listen   80 default;
+    server_name {{ hostname }};
+    keepalive_timeout 5;
+    client_max_body_size 4G;
+
+    # Log Files
+    access_log {{ app_path }}/logs/nginx-access.log;
+    error_log {{ app_path }}/logs/nginx-error.log;
+
+    root {{ core_path }};
+
+    # path for static files
+    location /static/ {
+        alias {{ static_path }};
+    }
+
+    # path for media files
+    location /media/ {
+        alias {{ media_path }};
+    }
+
+    # path for other files
+    location / {
+        # checks for static file, if not found proxy to app
+        try_files $uri @proxy_to_app;
+    }
+
+    location @proxy_to_app {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+
+        proxy_pass http://127.0.0.1:8000;
+    }
+}

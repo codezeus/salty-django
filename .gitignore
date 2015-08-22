@@ -1,0 +1,7 @@
+*.py[co]
+
+.vagrant/
+application/envs/
+application/project/node_modules/
+application/project/logs/
+application/project/project/static/

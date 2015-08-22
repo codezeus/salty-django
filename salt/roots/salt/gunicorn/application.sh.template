@@ -1,0 +1,35 @@
+{% set user = salt['pillar.get']('system:user') %}
+{% set group = salt['pillar.get']('system:group') %}
+{% set app_name = salt['pillar.get']('app:vars:app_name') %}
+{% set app_path = salt['pillar.get']('app:paths:src_dir') %}
+{% set core_path = app_path ~ '/' ~ app_name %}
+{% set settings_module = salt['pillar.get']('app:vars:settings_module') %}
+{% set venv_dir = salt['pillar.get']('system:venv_dir') %}
+{% set venv_path = venv_dir ~ app_name %}
+
+#!/bin/bash
+
+NAME="{{ app_name }}"
+DJANGODIR={{ core_path }}
+USER={{ user }}
+GROUP={{ group }}
+NUM_WORKERS={{ grains['num_cpus'] }}
+DJANGO_SETTINGS_MODULE=settings
+DJANGO_WSGI_MODULE=wsgi
+
+# Activate the virtual environment
+cd $DJANGODIR
+source {{ venv_path }}/bin/activate
+export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+export PYTHONPATH=$DJANGODIR:$PYTHONPATH
+
+# Start your Django Unicorn
+# Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
+exec {{ venv_path }}/bin/gunicorn ${DJANGO_WSGI_MODULE}:application \
+  --name $NAME \
+  --workers $NUM_WORKERS \
+  --user=$USER --group=$GROUP \
+  --bind=127.0.0.1:8000 \
+  --log-level=debug \
+  --log-file=- \
+  --reload

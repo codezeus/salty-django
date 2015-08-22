@@ -1,0 +1,12 @@
+-r base.pip
+
+# Utility
+django-extensions==1.5
+werkzeug==0.9
+
+# Testing
+pytest==2.7
+pytest-django==2.8.0
+mock==1.0.1
+coverage==3.7.1
+pytest-cov==1.8.1

@@ -1,0 +1,50 @@
+{% set secret_key = salt['pillar.get']('app:vars:secret_key') %}
+{% set db_name = salt['pillar.get']('postgresql:database') %}
+{% set db_user = salt['pillar.get']('postgresql:username') %}
+{% set db_pass = salt['pillar.get']('postgresql:password') %}
+{% set db_host = salt['pillar.get']('postgresql:host') %}
+{% set app_path = salt['pillar.get']('app:paths:src_dir') %}
+
+from .production import *
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': '{{ db_name }}',
+        'USER': '{{ db_user }}',
+        'HOST': '{{ db_host }}',
+        'PASSWORD': '{{ db_pass }}',
+    }
+}
+
+SECRET_KEY = '{{ secret_key }}'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '{{ app_path }}/logs/django.log',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': '127.0.0.1:6379',
+    },
+}
+
+MIDDLEWARE_CLASSES += ('django.middleware.cache.FetchFromCacheMiddleware',)
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'

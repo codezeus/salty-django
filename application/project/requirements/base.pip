@@ -1,0 +1,16 @@
+# Python
+pillow==2.9.0
+uuid==1.30
+
+# Django Specific
+django==1.8.3
+django-suit==0.2
+django-registration-redux==1.2
+django-crispy-forms==1.4.0
+django-imagekit==3.2.6
+django-redis-cache==1.6.0
+
+# DB
+redis==2.10.3
+psycopg2==2.6.1
+gunicorn==19.3.0

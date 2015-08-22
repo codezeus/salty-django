@@ -1,0 +1,26 @@
+# Python Bytecode
+*.py[co]
+__pycache__
+
+# DB Files
+sqlite3.db
+db.sqlite3
+
+# Settings
+project/settings/local.py
+
+# Static
+project/public/*
+project/media/*
+
+# Coverage
+.coverage
+.coverage_html
+htmlcov/
+
+# Logs
+*.log
+
+# NPM
+npm-debug.log
+node_modules/
